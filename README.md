@@ -100,7 +100,7 @@ make install
 
 (a) Update the path of Rscript in the script './configure.pl', (assume R is pre-installed)
 ```
-$R_SCRIPT="/home/tools/R-3.1.1/bin/Rscript";
+$R_SCRIPT="/home/tools/R-3.2.0/bin/Rscript";
 ```
 If you don't have "zoo" package, install it by launching R and typing install.packages("zoo")
 
@@ -111,9 +111,9 @@ $R
 >library("zoo")
 >q()
 ```
-We used R-3.1.1, which can be downloaded from https://cran.r-project.org/src/base/R-3/R-3.1.1.tar.gz
+We used R-3.2.0, which can be downloaded from https://cran.r-project.org/src/base/R-3/R-3.2.0.tar.gz
 ```
-./configure  --prefix=/home/tools/R-3.1.1  --with-readline=no --with-x=no
+./configure  --prefix=/home/tools/R-3.2.0  --with-readline=no --with-x=no
 make
 make insatll
 ```
