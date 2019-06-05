@@ -90,7 +90,7 @@ pip install Theano
 cd ~/CNNQA/
 cd tools
 cd EMBOSS-6.6.0
-./configure --prefix=./
+./configure --prefix=/home/jh7x3/CNNQA/tools/EMBOSS-6.6.0
 make
 make install
 ```
