@@ -12,7 +12,7 @@
  sub filter_score($$);
 
 
-my $GLOBAL_PATH='/home/jh7x3/DeepCov_QA/Github/DeepCovQA/';
+my $GLOBAL_PATH='/home/jh7x3/bdm_github/CNNQA/';
 
 
 
