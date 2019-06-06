@@ -1,11 +1,6 @@
 #! /usr/bin/perl -w
 #
 use Cwd;
-#use lib "/scratch/jh7x3/DeepCov_human_QA/tools/MIME-Lite-2.117/lib/";
-
-#use lib "/home/tools/MIME-Lite-2.117/lib/";
-#use email;
-#use MIME::Lite;
 require 5.003; # need this version of Perl or newer
 use English; # use English names, not cryptic ones
 use FileHandle; # use FileHandles instead of open(),close()
@@ -39,20 +34,11 @@ $seqfile = abs_path($ARGV[1]);
 $dir_models = abs_path($ARGV[2]);
 $dir_output = abs_path($ARGV[3]);
 
-$human_method_starttime = time();
+$qa_method_starttime = time();
 
 if(!(-d $dir_output))
 {
 	`mkdir $dir_output`;
-}
-
-
-##### filter the models according to the fasta sequence 
-if(!(-d "$dir_output/mod2"))
-{
-	`mkdir  $dir_output/mod2`;
-}else{
-	`rm -rf $dir_output/mod2/*`;
 }
 
 open(INPUT, "$seqfile") || die "ERROR! Could not open $seqfile\n";
@@ -65,7 +51,6 @@ chomp $fasta_seq;
 opendir(DIR,$dir_models) || die "Failed to open dir $dir_models\n";
 @targets = readdir(DIR);
 closedir(DIR);
-$model_num = 0;
 
 %len_seq = ();
 $dup_len_id=0;
@@ -78,24 +63,24 @@ foreach $model (@targets)
 	}
 	$file_PDB = "$dir_models/$model";
 	$seq = "";
+	%res_hash = ();
 	open(INPUTPDB, "$file_PDB") || die "ERROR! Could not open $file_PDB\n";
 	while(<INPUTPDB>){
 		next if $_ !~ m/^ATOM/;
 		next unless (parse_pdb_row($_,"aname") eq "CA");
 		confess "ERROR!: ".parse_pdb_row($_,"rname")." residue not defined! \nFile: $file_PDB! \nLine : $_" if (not defined $AA3TO1{parse_pdb_row($_,"rname")});
-		my $res = $AA3TO1{parse_pdb_row($_,"rname")};
+		$res = $AA3TO1{parse_pdb_row($_,"rname")};
+		$res_id = parse_pdb_row($_,"rnum");
+		# avoid duplicate residue in pdb
+		if(exists($res_hash{"${res}_${res_id}"}))
+		{
+			next;
+		}else{
+			$res_hash{"${res}_${res_id}"} = 1;
+		}
 		$seq .= $res;
 	}
 	close INPUTPDB;
-	
-	### copy all models to modAll for pairwise modelling
-	$modAll = "$dir_output/modAll/";
-	if(!(-d $modAll))
-	{
-		`mkdir $modAll`;
-	}
-	`cp $file_PDB $modAll`;
-	
 	
 	#### Classify models based on length
 	$len = length($seq);
@@ -104,7 +89,7 @@ foreach $model (@targets)
 		if($len_seq{$len} eq $seq)
 		{
 			### need reindex pdb
-			print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
+			#print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
 			system("perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model");
 			`cp $file_PDB $dir_output/modLen_${len}_noreindex/`;
 		}else{
@@ -120,7 +105,7 @@ foreach $model (@targets)
 			`mkdir $dir_output/modLen_$len`;
 			`mkdir $dir_output/modLen_${len}_noreindex/`;
 			### need reindex pdb
-			print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
+			#print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
 			system("perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model");
 			`cp $file_PDB $dir_output/modLen_${len}_noreindex/`;
 			
@@ -151,7 +136,7 @@ foreach $model (@targets)
 		}
 		
 		### need reindex pdb
-		print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
+		#print "perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model\n";
 		system("perl $GLOBAL_PATH/scripts/reindex_pdb.pl $file_PDB   $dir_output/modLen_$len/$model");
 		`cp $file_PDB $moddir_noreindex/`;
 		open(TMP,">$dir_output/len_$len.fasta") || die "Failed to open $dir_output/len_$len.fasta\n";
@@ -161,28 +146,12 @@ foreach $model (@targets)
 	}
 }
 
-## redefine dir_models
-$dir_models = "$dir_output/modAll";
-#print "$model_num models are selected for evaluation\n";
-
-
-##### create folder
-my($TMP_output) = $dir_output."/"."TMP";
--s $TMP_output || system("mkdir $TMP_output");
-
-
-$ALL_scores = $dir_output."/"."ALL_scores/";
-system("mkdir -p  $ALL_scores");
-
-$ALL_14_scores = $dir_output."/"."ALL_14_scores/";
-system("mkdir -p $ALL_14_scores");
-
 
 ########## for single qa only
 foreach $len (keys %len_seq)
 {
 	chomp $len;
-	print "!!!!!!!!!!!!!!!! Predicting length group $len\n\n";
+	print "\n!!!!!!!!!!!!!!!! Predicting length group $len\n\n";
 	$len_model_dir = $dir_output."/modLen_$len";
 	$len_model_dir_noreindex = $dir_output."/modLen_${len}_noreindex";
 	$len_seqfile = "$dir_output/len_$len.fasta";
@@ -202,13 +171,10 @@ foreach $len (keys %len_seq)
 	$ALL_scores = $len_tmpdir."/"."ALL_scores/";
 	system("mkdir -p  $ALL_scores");
 
-	$ALL_14_scores = $len_tmpdir."/"."ALL_14_scores/";
-	system("mkdir -p $ALL_14_scores");
-
 
 	##### (1) Run feature generation
 	print "\n\n##### (1) Run feature generation\n\n";
-	print("perl  $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl  $targetname $len_seqfile $len_model_dir $len_tmpdir\n");
+	#print("perl  $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl  $targetname $len_seqfile $len_model_dir $len_tmpdir\n");
 	$status = system("perl  $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl  $targetname $len_seqfile $len_model_dir $len_tmpdir");
 	if($status)
 	{
@@ -263,7 +229,7 @@ foreach $len (keys %len_seq)
 		}
 		print "\n\n##### (1) Re-Run feature generation with iteration $check_iteration\n\n";
 		# perl /home/casp13/Human_QA_package/scripts/P1_feature_generation_casp13_parallel.pl  T0946 /home/casp13/Human_QA_package/Jie_dev_casp13/data/casp12_original_seq//T0946.fasta  /home/casp13/Human_QA_package/HQA_cp12//T0946/T0946 /home/casp13/Human_QA_package/HQA_cp12//T0946_para1
-		print("perl $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl $targetname $len_seqfile $len_model_dir $len_tmpdir\n");
+		#print("perl $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl $targetname $len_seqfile $len_model_dir $len_tmpdir\n");
 		$status = system("perl $GLOBAL_PATH/scripts/P1_feature_generation_parallel.pl $targetname $len_seqfile $len_model_dir $len_tmpdir");		
 		if($status)# if failed, should we use at least one score?
 		{
@@ -291,20 +257,30 @@ foreach $len (keys %len_seq)
 	
 }
 
-print "cat $dir_output/modLen_*.predictions >$dir_output/deepcov_prediction.txt\n\n";
-`cat $dir_output/modLen_*.predictions >$dir_output/deepcov_prediction.txt`;
+#print "cat $dir_output/modLen_*.predictions >$dir_output/cnnqa_prediction_unsorted.txt\n\n";
+`cat $dir_output/modLen_*.predictions >$dir_output/cnnqa_prediction_unsorted.txt`;
 
 
 
-print "perl $GLOBAL_PATH/scripts/P5_sort_score.pl $dir_output/deepcov_prediction.txt $dir_output/deepcov_prediction_sort.txt\n\n";
-system("perl $GLOBAL_PATH/scripts/P5_sort_score.pl $dir_output/deepcov_prediction.txt $dir_output/deepcov_prediction_sort.txt\n\n");
+#print "perl $GLOBAL_PATH/scripts/P5_sort_score.pl $dir_output/cnnqa_prediction_unsorted.txt $dir_output/cnnqa_prediction.txt\n\n";
+system("perl $GLOBAL_PATH/scripts/P5_sort_score.pl $dir_output/cnnqa_prediction_unsorted.txt $dir_output/cnnqa_prediction.txt");
 
 
-$human_method_finishtime = time();
-$method_diff_hrs = ($human_method_finishtime - $human_method_starttime)/3600;
+### clean files 
+foreach $len (sort keys %len_seq)
+{
+	#`rm -rf $dir_output/modLen_$len`;
+	#`rm -rf $dir_output/modLen_${len}_noreindex/`;
+	#`rm -rf $dir_output/len_${len}/TMP/`;
+}
 
-print "\n\n####### HumanQA prediction done within $method_diff_hrs hr!!!!!\n\n";
 
+$qa_method_finishtime = time();
+$method_diff_hrs = ($qa_method_finishtime - $qa_method_starttime)/3600;
+
+print "\n\n####### CNNQA prediction done within $method_diff_hrs hr!!!!!\n\n";
+
+print "Final prediction -> $dir_output/cnnqa_prediction.txt";
 
 
 
