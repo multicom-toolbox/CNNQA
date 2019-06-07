@@ -102,15 +102,7 @@ make install
 ```
 $R_SCRIPT="/home/tools/R-3.2.0/bin/Rscript";
 ```
-If you don't have "zoo" package, install it by launching R and typing install.packages("zoo")
 
-```
-$R
-
->install.packages("zoo")
->library("zoo")
->q()
-```
 We used R-3.2.0, which can be downloaded from https://cran.r-project.org/src/base/R-3/R-3.2.0.tar.gz
 ```
 cd /home/tools/
@@ -118,7 +110,17 @@ wget https://cran.r-project.org/src/base/R-3/R-3.2.0.tar.gz
 cd /home/tools/R-3.2.0/
 ./configure  --prefix=/home/tools/R-3.2.0  --with-readline=no --with-x=no
 make
-make insatll
+make install
+```
+
+If you don't have "zoo" package, install it by launching R and typing install.packages("zoo")
+
+```
+$/home/tools/R-3.2.0/bin/R
+
+>install.packages("zoo")
+>library("zoo")
+>q()
 ```
 
 (b) Configure software
