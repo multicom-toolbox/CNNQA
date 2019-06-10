@@ -91,6 +91,7 @@ cd ~/CNNQA/
 cd tools
 cd EMBOSS-6.6.0
 ./configure --prefix=/home/jh7x3/CNNQA/tools/EMBOSS-6.6.0
+make clean
 make
 make install
 ```
