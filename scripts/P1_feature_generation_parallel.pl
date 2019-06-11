@@ -204,7 +204,7 @@ $tools2		="rosetta,disorder,pssm,aa_ss_sa,DeepQA";
 $post_process = 0; 
 $thread_num = @tools;
 %thread_ids = ();
-$EXEC_LIMIT_HRS = 60*60*12;#6 hrs
+$EXEC_LIMIT_HRS = 60*60*24*7;#one week
  
 #$EXEC_LIMIT_HRS = 60*3;#10 hrs
 for ($i = 0; $i < @tools; $i++)
