@@ -151,9 +151,8 @@ my($sa_match_dir) = $TMP_output."/SA_match";
 if(-d $sa_match_dir)
 {
 	`rm -rf $sa_match_dir/`;
-}else{
-	mkdir($sa_match_dir);
 }
+mkdir($sa_match_dir);
 
 my($aa_ss_sa) = $TMP_output."/AA_SS_SA";
 if(-d $aa_ss_sa)
