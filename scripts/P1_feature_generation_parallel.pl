@@ -94,71 +94,63 @@ $OUT->close();
 my($models_folder) = $TMP_output."/".$targetname."_2";
 if(-d $models_folder)
 {
-	`rm -rf $models_folder/*`;
-}else{
-	mkdir($models_folder);
+	`rm -rf $models_folder/`;
 }
-system("cp -R $dir_models/* $models_folder");
+
+system("cp -R $dir_models/ $models_folder");
 
 
 my($models_rosetta) = $TMP_output."/mod_rosetta";
 if(-d $models_rosetta)
 {
-	`rm -rf $models_rosetta/*`;
-}else{
-	mkdir($models_rosetta);
+	`rm -rf $models_rosetta/`;
 }
-system("cp -R $dir_models/* $models_rosetta");
+
+system("cp -R $dir_models/ $models_rosetta");
 
 my($models_dssp) = $TMP_output."/mod_dssp";
 if(-d $models_dssp)
 {
-	`rm -rf $models_dssp/*`;
-}else{
-	mkdir($models_dssp);
+	`rm -rf $models_dssp/`;
 }
-system("cp -R $dir_models/* $models_dssp");
+system("cp -R $dir_models/ $models_dssp");
 
 
 my($models_DeepQA) = $TMP_output."/mod_DeepQA";
 if(-d $models_DeepQA)
 {
-	`rm -rf $models_DeepQA/*`;
-}else{
-	mkdir($models_DeepQA);
+	`rm -rf $models_DeepQA/`;
 }
-system("cp -R $dir_models/* $models_DeepQA");
+
+system("cp -R $dir_models/ $models_DeepQA");
 
 
 
 my($pssm_dir) = $TMP_output."/PSSM";
 if(-d $pssm_dir)
 {
-	`rm -rf $pssm_dir/*`;
-}else{
-	mkdir($pssm_dir);
+	`rm -rf $pssm_dir/`;
 }
+mkdir($pssm_dir);
 
 my($disorder_dir) = $TMP_output."/Disorder";
 if(-d $disorder_dir)
 {
-	`rm -rf $disorder_dir/*`;
-}else{
-	mkdir($disorder_dir);
+	`rm -rf $disorder_dir/`;
 }
+mkdir($disorder_dir);
 
 my($ss_match_dir) = $TMP_output."/SS_match";
 if(-d $ss_match_dir)
 {
-	`rm -rf $ss_match_dir/*`;
-}else{
-	mkdir($ss_match_dir);
+	`rm -rf $ss_match_dir/`;
 }
+mkdir($ss_match_dir);
 
 my($sa_match_dir) = $TMP_output."/SA_match";
 if(-d $sa_match_dir)
 {
-	`rm -rf $sa_match_dir/*`;
+	`rm -rf $sa_match_dir/`;
 }else{
 	mkdir($sa_match_dir);
 }
@@ -166,10 +158,9 @@ if(-d $sa_match_dir)
 my($aa_ss_sa) = $TMP_output."/AA_SS_SA";
 if(-d $aa_ss_sa)
 {
-	`rm -rf $aa_ss_sa/*`;
-}else{
-	mkdir($aa_ss_sa);
+	`rm -rf $aa_ss_sa/`;
 }
+mkdir($aa_ss_sa);
 
 
  ### now we get every thing I need #####
