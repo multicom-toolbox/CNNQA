@@ -84,6 +84,10 @@ foreach $model (@targets)
 	
 	#### Classify models based on length
 	$len = length($seq);
+	if($len==0)
+	{
+		next;
+	}
 	if(exists($len_seq{$len}))
 	{
 		if($len_seq{$len} eq $seq)
