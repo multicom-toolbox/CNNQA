@@ -8,6 +8,9 @@ Test Environment
 
 CentOS Linux 7 (Core)
 
+python 2.7
+
+
 Installation Steps
 --------------------------------------------------------------------------------------
 
